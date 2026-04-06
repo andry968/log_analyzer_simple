@@ -1,0 +1,50 @@
+SSH AUTH LOG ANALYZER — EVENT LOG
+============================================================
+
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 10.0.0.50          | User: admin          
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 10.0.0.50          | User: admin          
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 10.0.0.50          | User: admin          
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 10.0.0.50          | User: admin          
+[2026-04-06 21:08:07] ssh_success    | IP/From: 10.0.0.50          | User: admin          
+[2026-04-06 21:08:07] invalid_user   | IP/From: 203.0.113.10       | User: test           
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 203.0.113.10       | User: test           
+[2026-04-06 21:08:07] invalid_user   | IP/From: 203.0.113.10       | User: guest          
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 203.0.113.10       | User: guest          
+[2026-04-06 21:08:07] invalid_user   | IP/From: 203.0.113.10       | User: ftp            
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 203.0.113.10       | User: ftp            
+[2026-04-06 21:08:07] ssh_success    | IP/From: 192.168.1.100      | User: jane           
+[2026-04-06 21:08:07] su_failed      | IP/From: alice              | User: root           
+[2026-04-06 21:08:07] su_failed      | IP/From: alice              | User: root           
+[2026-04-06 21:08:07] su_success     | IP/From: alice              | User: root           
+[2026-04-06 21:08:07] sudo_success   | IP/From: alice              | User: root            | /usr/bin/systemctl restart nginx
+[2026-04-06 21:08:07] sudo_failed    | IP/From: root               | User: root           
+[2026-04-06 21:08:07] sudo_failed    | IP/From: bob                | User: root           
+[2026-04-06 21:08:07] sudo_success   | IP/From: bob                | User: root            | /usr/bin/apt update
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 45.33.22.11        | User: root           
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 45.33.22.11        | User: root           
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 45.33.22.11        | User: root           
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 45.33.22.11        | User: root           
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 45.33.22.11        | User: root           
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 45.33.22.11        | User: root           
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 45.33.22.11        | User: root           
+[2026-04-06 21:08:07] ssh_failed     | IP/From: 45.33.22.11        | User: root           
+
+============================================================
+SUMMARY
+============================================================
+  SUMMARY REPORT
+  SSH Failed Logins     : 15
+  SSH Successful        : 2
+  Invalid User Probes   : 3
+  SU Success            : 1
+  SU/Sudo Failed        : 4
+  Sudo Commands Run     : 2
+  Unique Attacking IPs  : 3
+  Brute Force Alerts    : 1
+  PRIVILEGE ESCALATIONS DETECTED:
+    alice → root
+    bob → root
+  TOP 10 ATTACKING IPs:
+  # 1 45.33.22.11     8 attempts  ████████ *** BRUTE FORCE ***
+  # 2 10.0.0.50       4 attempts  ████
+  # 3 203.0.113.10     3 attempts  ███
