@@ -1,25 +1,16 @@
 #!/usr/bin/env python3
-"""
-analyzer.py — SSH Auth Log Analyzer
-====================================
-Reads auth.log entries from stdin (piped from log_feeder.sh or any source),
-detects SSH events, counts per-IP attempts, and prints colored alerts.
-
-Usage:
-    cat auth.log | python3 analyzer.py [options]
-    ./log_feeder.sh --live | python3 analyzer.py --threshold 5
-    ./log_feeder.sh --file auth.log | python3 analyzer.py --no-color --threshold 3
-"""
 
 import sys
 import re
+import csv
 import argparse
 from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
 
 
 # =============================================================================
-# ANSI Color Codes (optional, toggled via --no-color)
+# ANSI Color Codes
 # =============================================================================
 class Colors:
     RESET   = "\033[0m"
@@ -30,262 +21,424 @@ class Colors:
     BOLD    = "\033[1m"
     DIM     = "\033[2m"
     MAGENTA = "\033[95m"
+    ORANGE  = "\033[33m"
 
-# Will be set to False if --no-color is passed
 USE_COLOR = True
 
 def colorize(text: str, *codes: str) -> str:
-    """Wrap text in ANSI codes if color is enabled."""
     if not USE_COLOR:
         return text
     return "".join(codes) + text + Colors.RESET
 
 
 # =============================================================================
-# Regex Patterns for auth.log parsing
+# Regex Patterns
 # =============================================================================
-
-# Matches lines like: "Failed password for invalid user admin from 192.168.1.10 port 22 ssh2"
 FAILED_PATTERN = re.compile(
     r"Failed password for (?:invalid user )?(\S+) from ([\d.]+) port \d+"
 )
-
-# Matches: "Accepted password for user from 192.168.1.10 port 22 ssh2"
-# Also handles publickey auth
 SUCCESS_PATTERN = re.compile(
     r"Accepted (?:password|publickey) for (\S+) from ([\d.]+) port \d+"
 )
-
-# Matches disconnects/invalid users (supplementary context)
 INVALID_USER_PATTERN = re.compile(
     r"Invalid user (\S+) from ([\d.]+)"
+)
+# su success: "su[1043]: (to root) siapaipan on pts/0"
+SU_SUCCESS_PATTERN = re.compile(
+    r"su\[\d+\]: \(to (\S+)\) (\S+) on "
+)
+# su failed: "su[1044]: FAILED su for root by siapaipan"
+SU_FAILED_PATTERN = re.compile(
+    r"su\[\d+\]: FAILED su for (\S+) by (\S+)"
+)
+# sudo success: "sudo: siapaipan : TTY=pts/0 ; USER=root ; COMMAND=..."
+SUDO_SUCCESS_PATTERN = re.compile(
+    r"sudo:\s+(\S+)\s+:.*USER=(\S+)\s*;.*COMMAND=(.+)"
+)
+# sudo failed auth
+SUDO_FAILED_PATTERN = re.compile(
+    r"sudo:.*authentication failure.*user=(\S+)"
 )
 
 
 # =============================================================================
-# LogEvent — represents a parsed log event
+# LogEvent
 # =============================================================================
 class LogEvent:
-    def __init__(self, event_type: str, user: str, ip: str, raw_line: str):
-        self.event_type = event_type   # "failed", "success", "invalid"
+    def __init__(self, event_type: str, user: str, ip: str, raw_line: str, extra: str = ""):
+        self.event_type = event_type
         self.user       = user
-        self.ip         = ip
+        self.ip         = ip        # for su: reused as "from_user"
         self.raw_line   = raw_line.strip()
-        self.timestamp  = datetime.now().strftime("%H:%M:%S")
+        self.extra      = extra
+        self.timestamp  = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 # =============================================================================
-# LogParser — parses a single log line into a LogEvent
+# LogParser
 # =============================================================================
 class LogParser:
     @staticmethod
-    def parse(line: str) -> LogEvent | None:
-        """
-        Try each pattern against the log line.
-        Returns a LogEvent on match, or None if irrelevant.
-        """
+    def parse(line: str) -> "LogEvent | None":
         m = FAILED_PATTERN.search(line)
         if m:
-            return LogEvent("failed", m.group(1), m.group(2), line)
+            return LogEvent("ssh_failed", m.group(1), m.group(2), line)
 
         m = SUCCESS_PATTERN.search(line)
         if m:
-            return LogEvent("success", m.group(1), m.group(2), line)
+            return LogEvent("ssh_success", m.group(1), m.group(2), line)
 
         m = INVALID_USER_PATTERN.search(line)
         if m:
-            return LogEvent("invalid", m.group(1), m.group(2), line)
+            return LogEvent("invalid_user", m.group(1), m.group(2), line)
 
-        return None  # Not an SSH event we care about
+        m = SU_SUCCESS_PATTERN.search(line)
+        if m:
+            # group(1)=target account, group(2)=who did it
+            return LogEvent("su_success", m.group(1), m.group(2), line)
+
+        m = SU_FAILED_PATTERN.search(line)
+        if m:
+            return LogEvent("su_failed", m.group(1), m.group(2), line)
+
+        m = SUDO_SUCCESS_PATTERN.search(line)
+        if m:
+            return LogEvent("sudo_success", m.group(2), m.group(1), line, extra=m.group(3).strip())
+
+        m = SUDO_FAILED_PATTERN.search(line)
+        if m:
+            return LogEvent("sudo_failed", "root", m.group(1), line)
+
+        return None
 
 
 # =============================================================================
-# AlertEngine — tracks counts and fires alerts
+# OutputWriter — saves events + summary to .csv or .txt
+# =============================================================================
+class OutputWriter:
+    def __init__(self, filepath: str):
+        self.filepath = filepath
+        self.is_csv   = filepath.lower().endswith(".csv")
+        self.records  = []
+
+    def record(self, event: LogEvent):
+        self.records.append({
+            "timestamp"  : event.timestamp,
+            "event_type" : event.event_type,
+            "user"       : event.user,
+            "ip_or_from" : event.ip,
+            "extra"      : event.extra,
+        })
+
+    def write(self, summary_lines: list):
+        path = Path(self.filepath)
+
+        if self.is_csv:
+            with open(path, "w", newline="") as f:
+                fieldnames = ["timestamp", "event_type", "user", "ip_or_from", "extra"]
+                # pakai semicolon biar langsung rapi di LibreOffice tanpa setting tambahan
+                w = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";")
+                w.writeheader()
+                w.writerows(self.records)
+            with open(path, "a") as f:
+                f.write("\n# SUMMARY\n")
+                for line in summary_lines:
+                    f.write(f"# {line}\n")
+        else:
+            with open(path, "w") as f:
+                f.write("SSH AUTH LOG ANALYZER — EVENT LOG\n")
+                f.write("=" * 60 + "\n\n")
+                for r in self.records:
+                    f.write(
+                        f"[{r['timestamp']}] {r['event_type']:<14} | "
+                        f"IP/From: {r['ip_or_from']:<18} | "
+                        f"User: {r['user']:<15}"
+                    )
+                    if r["extra"]:
+                        f.write(f" | {r['extra']}")
+                    f.write("\n")
+                f.write("\n" + "=" * 60 + "\n")
+                f.write("SUMMARY\n" + "=" * 60 + "\n")
+                for line in summary_lines:
+                    f.write(line + "\n")
+
+        print(colorize(f"\n[+] Output saved → {self.filepath}", Colors.GREEN, Colors.BOLD))
+
+
+# =============================================================================
+# AlertEngine
 # =============================================================================
 class AlertEngine:
-    def __init__(self, threshold: int):
+    def __init__(self, threshold: int, writer: "OutputWriter | None" = None):
         self.threshold      = threshold
-        self.failed_counts  = defaultdict(int)   # ip -> count of failed attempts
-        self.alerted_ips    = set()              # IPs that already triggered brute-force alert
-        self.success_count  = 0
-        self.failed_total   = 0
-        self.invalid_count  = 0
+        self.writer         = writer
+        self.failed_counts  = defaultdict(int)
+        self.alerted_ips    = set()
+        self.su_escalations = []
+
+        self.ssh_failed_total  = 0
+        self.ssh_success_total = 0
+        self.invalid_total     = 0
+        self.su_success_total  = 0
+        self.su_failed_total   = 0
+        self.sudo_total        = 0
 
     def process(self, event: LogEvent):
-        """Process a parsed event and print the appropriate alert."""
+        if self.writer:
+            self.writer.record(event)
 
-        if event.event_type == "failed":
+        t = event.event_type
+
+        if t == "ssh_failed":
             self.failed_counts[event.ip] += 1
-            self.failed_total += 1
-            self._print_failed(event)
+            self.ssh_failed_total += 1
+            self._print_ssh_failed(event)
             self._check_brute_force(event.ip)
 
-        elif event.event_type == "success":
-            self.success_count += 1
-            self._print_success(event)
+        elif t == "ssh_success":
+            self.ssh_success_total += 1
+            self._print_ssh_success(event)
 
-        elif event.event_type == "invalid":
-            self.invalid_count += 1
-            # Invalid user attempts are subtly noted (not always re-alerted)
+        elif t == "invalid_user":
+            self.invalid_total += 1
             self._print_invalid(event)
 
+        elif t == "su_success":
+            self.su_success_total += 1
+            self.su_escalations.append((event.ip, event.user))
+            self._print_su_success(event)
+            if event.user == "root":
+                self._print_privesc_alert(event, via="su")
+
+        elif t == "su_failed":
+            self.su_failed_total += 1
+            self._print_su_failed(event)
+
+        elif t == "sudo_success":
+            self.sudo_total += 1
+            self.su_escalations.append((event.ip, event.user))
+            self._print_sudo_success(event)
+            if event.user == "root":
+                self._print_privesc_alert(event, via="sudo")
+
+        elif t == "sudo_failed":
+            self.su_failed_total += 1
+            self._print_sudo_failed(event)
+
     def _check_brute_force(self, ip: str):
-        """Fire a brute-force alert if threshold is crossed (once per IP)."""
         count = self.failed_counts[ip]
         if count >= self.threshold and ip not in self.alerted_ips:
             self.alerted_ips.add(ip)
             self._print_brute_force(ip, count)
         elif count > self.threshold and ip in self.alerted_ips:
-            # Print escalating count update every 5 additional attempts
             if (count - self.threshold) % 5 == 0:
                 print(colorize(
-                    f"  [!] BRUTE FORCE ONGOING | {ip} now at {count} failed attempts",
+                    f"  [!] BRUTE FORCE ONGOING | {ip} now at {count} attempts",
                     Colors.BOLD, Colors.RED
                 ))
 
-    # -----------------------------------------------------------------------
-    # Print helpers
-    # -----------------------------------------------------------------------
-    def _print_failed(self, event: LogEvent):
-        count = self.failed_counts[event.ip]
-        line = (
-            f"[{event.timestamp}] "
-            f"{colorize('FAILED LOGIN', Colors.YELLOW, Colors.BOLD)} | "
-            f"IP: {colorize(event.ip, Colors.CYAN)} | "
-            f"User: {colorize(event.user, Colors.MAGENTA)} | "
-            f"Attempts from this IP: {colorize(str(count), Colors.YELLOW)}"
-        )
-        print(line)
+    # --- print helpers ---
 
-    def _print_success(self, event: LogEvent):
-        line = (
-            f"[{event.timestamp}] "
-            f"{colorize('SUCCESS LOGIN', Colors.GREEN, Colors.BOLD)} | "
-            f"IP: {colorize(event.ip, Colors.CYAN)} | "
-            f"User: {colorize(event.user, Colors.GREEN)}"
+    def _print_ssh_failed(self, e):
+        count = self.failed_counts[e.ip]
+        print(
+            f"[{e.timestamp}] "
+            f"{colorize('FAILED SSH  ', Colors.YELLOW, Colors.BOLD)} | "
+            f"IP: {colorize(e.ip, Colors.CYAN)} | "
+            f"User: {colorize(e.user, Colors.MAGENTA)} | "
+            f"Attempt #{colorize(str(count), Colors.YELLOW)}"
         )
-        print(line)
 
-    def _print_invalid(self, event: LogEvent):
-        line = (
-            f"[{event.timestamp}] "
+    def _print_ssh_success(self, e):
+        print(
+            f"[{e.timestamp}] "
+            f"{colorize('SUCCESS SSH ', Colors.GREEN, Colors.BOLD)} | "
+            f"IP: {colorize(e.ip, Colors.CYAN)} | "
+            f"User: {colorize(e.user, Colors.GREEN)}"
+        )
+
+    def _print_invalid(self, e):
+        print(
+            f"[{e.timestamp}] "
             f"{colorize('INVALID USER', Colors.DIM, Colors.YELLOW)} | "
-            f"IP: {colorize(event.ip, Colors.CYAN)} | "
-            f"User: {colorize(event.user, Colors.MAGENTA)}"
+            f"IP: {colorize(e.ip, Colors.CYAN)} | "
+            f"User: {colorize(e.user, Colors.MAGENTA)}"
         )
-        print(line)
 
-    def _print_brute_force(self, ip: str, count: int):
-        separator = colorize("=" * 60, Colors.RED, Colors.BOLD)
+    def _print_brute_force(self, ip, count):
+        sep = colorize("=" * 60, Colors.RED, Colors.BOLD)
         print()
-        print(separator)
-        print(colorize(
-            f"  *** BRUTE FORCE DETECTED ***",
-            Colors.RED, Colors.BOLD
-        ))
-        print(colorize(
-            f"  IP Address : {ip}",
-            Colors.RED
-        ))
-        print(colorize(
-            f"  Attempts   : {count} (threshold: {self.threshold})",
-            Colors.RED
-        ))
-        print(colorize(
-            f"  Action     : Consider blocking with: iptables -A INPUT -s {ip} -j DROP",
-            Colors.YELLOW
-        ))
-        print(separator)
+        print(sep)
+        print(colorize("  *** BRUTE FORCE DETECTED ***", Colors.RED, Colors.BOLD))
+        print(colorize(f"  IP Address : {ip}", Colors.RED))
+        print(colorize(f"  Attempts   : {count} (threshold: {self.threshold})", Colors.RED))
+        print(colorize(f"  Block with : iptables -A INPUT -s {ip} -j DROP", Colors.YELLOW))
+        print(sep)
         print()
 
-    # -----------------------------------------------------------------------
-    # Summary Report
-    # -----------------------------------------------------------------------
-    def print_summary(self, top_n: int = 10):
-        """Print a final summary report after all logs are processed."""
+    def _print_su_success(self, e):
+        print(
+            f"[{e.timestamp}] "
+            f"{colorize('SU SUCCESS  ', Colors.ORANGE, Colors.BOLD)} | "
+            f"User: {colorize(e.ip, Colors.CYAN)} "
+            f"→ became {colorize(e.user, Colors.ORANGE)}"
+        )
+
+    def _print_su_failed(self, e):
+        print(
+            f"[{e.timestamp}] "
+            f"{colorize('SU FAILED   ', Colors.YELLOW, Colors.BOLD)} | "
+            f"User: {colorize(e.ip, Colors.CYAN)} "
+            f"tried to become {colorize(e.user, Colors.MAGENTA)}"
+        )
+
+    def _print_sudo_success(self, e):
+        cmd = e.extra[:50] + "..." if len(e.extra) > 50 else e.extra
+        print(
+            f"[{e.timestamp}] "
+            f"{colorize('SUDO        ', Colors.ORANGE, Colors.BOLD)} | "
+            f"User: {colorize(e.ip, Colors.CYAN)} "
+            f"→ as {colorize(e.user, Colors.ORANGE)} "
+            f"| CMD: {colorize(cmd, Colors.DIM)}"
+        )
+
+    def _print_sudo_failed(self, e):
+        print(
+            f"[{e.timestamp}] "
+            f"{colorize('SUDO FAILED ', Colors.YELLOW, Colors.BOLD)} | "
+            f"User: {colorize(e.ip, Colors.CYAN)} failed sudo auth"
+        )
+
+    def _print_privesc_alert(self, e, via="su"):
+        sep = colorize("=" * 60, Colors.ORANGE, Colors.BOLD)
+        print()
+        print(sep)
+        print(colorize(
+            f"  *** PRIVILEGE ESCALATION TO ROOT ({via.upper()}) ***",
+            Colors.ORANGE, Colors.BOLD
+        ))
+        print(colorize(f"  From User  : {e.ip}", Colors.ORANGE))
+        print(colorize(f"  Target     : root", Colors.ORANGE))
+        if via == "sudo" and e.extra:
+            cmd = e.extra[:50] + "..." if len(e.extra) > 50 else e.extra
+            print(colorize(f"  Command    : {cmd}", Colors.YELLOW))
+        print(colorize("  Action     : Verify this is an authorized admin!", Colors.YELLOW))
+        print(sep)
+        print()
+
+    def print_summary(self, top_n: int = 10) -> list:
+        """Print summary, return plain lines for file output."""
         sep = colorize("=" * 60, Colors.CYAN, Colors.BOLD)
+        plain = []
+
+        def both(colored_line: str):
+            print(colored_line)
+            plain.append(re.sub(r"\033\[[0-9;]*m", "", colored_line))
+
         print()
         print(sep)
-        print(colorize("  SUMMARY REPORT", Colors.BOLD, Colors.CYAN))
+        both(colorize("  SUMMARY REPORT", Colors.BOLD, Colors.CYAN))
         print(sep)
-        print(f"  Total Failed Logins   : {colorize(str(self.failed_total), Colors.YELLOW)}")
-        print(f"  Total Successful      : {colorize(str(self.success_count), Colors.GREEN)}")
-        print(f"  Invalid User Attempts : {colorize(str(self.invalid_count), Colors.DIM)}")
-        print(f"  Unique Attacking IPs  : {colorize(str(len(self.failed_counts)), Colors.RED)}")
-        print(f"  Brute Force Alerts    : {colorize(str(len(self.alerted_ips)), Colors.RED, Colors.BOLD)}")
-        print()
+        both(f"  SSH Failed Logins     : {colorize(str(self.ssh_failed_total), Colors.YELLOW)}")
+        both(f"  SSH Successful        : {colorize(str(self.ssh_success_total), Colors.GREEN)}")
+        both(f"  Invalid User Probes   : {colorize(str(self.invalid_total), Colors.DIM)}")
+        both(f"  SU Success            : {colorize(str(self.su_success_total), Colors.ORANGE)}")
+        both(f"  SU/Sudo Failed        : {colorize(str(self.su_failed_total), Colors.YELLOW)}")
+        both(f"  Sudo Commands Run     : {colorize(str(self.sudo_total), Colors.ORANGE)}")
+        both(f"  Unique Attacking IPs  : {colorize(str(len(self.failed_counts)), Colors.RED)}")
+        both(f"  Brute Force Alerts    : {colorize(str(len(self.alerted_ips)), Colors.RED, Colors.BOLD)}")
+
+        if self.su_escalations:
+            print()
+            both(colorize("  PRIVILEGE ESCALATIONS DETECTED:", Colors.BOLD, Colors.ORANGE))
+            seen = set()
+            for from_user, target in self.su_escalations:
+                key = f"{from_user}>{target}"
+                if key not in seen:
+                    seen.add(key)
+                    both(f"    {colorize(from_user, Colors.CYAN)} → {colorize(target, Colors.ORANGE)}")
 
         if self.failed_counts:
-            print(colorize(f"  TOP {top_n} ATTACKING IPs:", Colors.BOLD, Colors.RED))
+            print()
+            both(colorize(f"  TOP {top_n} ATTACKING IPs:", Colors.BOLD, Colors.RED))
             sorted_ips = sorted(self.failed_counts.items(), key=lambda x: x[1], reverse=True)
             for rank, (ip, count) in enumerate(sorted_ips[:top_n], 1):
-                bar = colorize("█" * min(count, 40), Colors.RED)
+                bar  = colorize("█" * min(count, 40), Colors.RED)
                 flag = colorize(" *** BRUTE FORCE ***", Colors.RED, Colors.BOLD) if ip in self.alerted_ips else ""
-                print(f"  #{rank:>2} {colorize(ip, Colors.CYAN):<20} {count:>5} attempts  {bar}{flag}")
+                both(f"  #{rank:>2} {colorize(ip, Colors.CYAN):<20} {count:>5} attempts  {bar}{flag}")
 
         print(sep)
         print()
+        return plain
 
 
 # =============================================================================
-# Main entry point
+# CLI
 # =============================================================================
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="SSH Auth Log Analyzer — reads from stdin, detects SSH threats.",
+    p = argparse.ArgumentParser(
+        description="SSH Auth Log Analyzer v2",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
 Examples:
   cat /var/log/auth.log | python3 analyzer.py
-  ./log_feeder.sh --live | python3 analyzer.py --threshold 5
-  ./log_feeder.sh --file sample.log | python3 analyzer.py --no-color --threshold 3
+  ./log_feeder.sh -f /var/log/auth.log | python3 analyzer.py -t 3
+  ./log_feeder.sh -lv | python3 analyzer.py -t 5 -o report.csv
+  cat auth.log | python3 analyzer.py --no-color -o output.txt
         """
     )
-    parser.add_argument(
-        "--threshold", type=int, default=5,
-        help="Number of failed attempts before brute-force alert (default: 5)"
-    )
-    parser.add_argument(
-        "--no-color", action="store_true",
-        help="Disable colored output (useful for logging to file)"
-    )
-    parser.add_argument(
-        "--top", type=int, default=10,
-        help="Number of top attacking IPs to show in summary (default: 10)"
-    )
-    return parser.parse_args()
+    p.add_argument("-t", "--threshold", type=int, default=5,
+                   help="Failed attempts before brute-force alert (default: 5)")
+    p.add_argument("--no-color", action="store_true",
+                   help="Disable colored output")
+    p.add_argument("--top", type=int, default=10,
+                   help="Top N attacking IPs in summary (default: 10)")
+    p.add_argument("-o", "--output", type=str, default=None,
+                   help="Save output to file: report.csv or report.txt")
+    return p.parse_args()
 
 
+# =============================================================================
+# Main
+# =============================================================================
 def main():
     global USE_COLOR
-
-    args = parse_args()
+    args      = parse_args()
     USE_COLOR = not args.no_color
 
-    # Print startup banner
+    # validate -o extension
+    if args.output and not (args.output.endswith(".csv") or args.output.endswith(".txt")):
+        print(colorize("[!] -o only supports .csv or .txt", Colors.YELLOW))
+        sys.exit(1)
+
+    writer = OutputWriter(args.output) if args.output else None
+
+    # banner
     print(colorize("=" * 60, Colors.CYAN, Colors.BOLD))
-    print(colorize("  SSH Auth Log Analyzer", Colors.BOLD, Colors.CYAN))
-    print(colorize(f"  Threshold : {args.threshold} failed attempts = brute force", Colors.DIM))
-    print(colorize(f"  Reading from stdin...", Colors.DIM))
+    print(colorize("  SSH Auth Log Analyzer v2", Colors.BOLD, Colors.CYAN))
+    print(colorize(f"  Threshold  : {args.threshold} failed = brute force", Colors.DIM))
+    print(colorize(f"  Detects    : SSH fail/success, invalid user, su, sudo", Colors.DIM))
+    if args.output:
+        print(colorize(f"  Saving to  : {args.output}", Colors.DIM))
+    print(colorize("  Reading from stdin...", Colors.DIM))
     print(colorize("=" * 60, Colors.CYAN, Colors.BOLD))
     print()
 
-    parser = LogParser()
-    engine = AlertEngine(threshold=args.threshold)
+    log_parser = LogParser()
+    engine     = AlertEngine(threshold=args.threshold, writer=writer)
 
-    # Read line by line from stdin (piped from log_feeder.sh or direct cat)
     try:
         for raw_line in sys.stdin:
-            event = parser.parse(raw_line)
+            event = log_parser.parse(raw_line)
             if event:
                 engine.process(event)
-
     except KeyboardInterrupt:
-        # Graceful exit on Ctrl+C (common in --live mode)
-        print(colorize("\n[!] Interrupted by user. Generating summary...", Colors.YELLOW))
+        print(colorize("\n[!] Interrupted. Generating summary...", Colors.YELLOW))
 
-    # Always print summary at the end
-    engine.print_summary(top_n=args.top)
+    summary_lines = engine.print_summary(top_n=args.top)
+
+    if writer:
+        writer.write(summary_lines)
 
 
 if __name__ == "__main__":
