@@ -1,0 +1,46 @@
+timestamp;event_type;user;ip_or_from;extra
+2026-04-06 21:08:03;ssh_failed;admin;10.0.0.50;
+2026-04-06 21:08:03;ssh_failed;admin;10.0.0.50;
+2026-04-06 21:08:03;ssh_failed;admin;10.0.0.50;
+2026-04-06 21:08:03;ssh_failed;admin;10.0.0.50;
+2026-04-06 21:08:03;ssh_success;admin;10.0.0.50;
+2026-04-06 21:08:03;invalid_user;test;203.0.113.10;
+2026-04-06 21:08:03;ssh_failed;test;203.0.113.10;
+2026-04-06 21:08:03;invalid_user;guest;203.0.113.10;
+2026-04-06 21:08:03;ssh_failed;guest;203.0.113.10;
+2026-04-06 21:08:03;invalid_user;ftp;203.0.113.10;
+2026-04-06 21:08:03;ssh_failed;ftp;203.0.113.10;
+2026-04-06 21:08:03;ssh_success;jane;192.168.1.100;
+2026-04-06 21:08:03;su_failed;root;alice;
+2026-04-06 21:08:03;su_failed;root;alice;
+2026-04-06 21:08:03;su_success;root;alice;
+2026-04-06 21:08:03;sudo_success;root;alice;/usr/bin/systemctl restart nginx
+2026-04-06 21:08:03;sudo_failed;root;root;
+2026-04-06 21:08:03;sudo_failed;root;bob;
+2026-04-06 21:08:03;sudo_success;root;bob;/usr/bin/apt update
+2026-04-06 21:08:03;ssh_failed;root;45.33.22.11;
+2026-04-06 21:08:03;ssh_failed;root;45.33.22.11;
+2026-04-06 21:08:03;ssh_failed;root;45.33.22.11;
+2026-04-06 21:08:03;ssh_failed;root;45.33.22.11;
+2026-04-06 21:08:03;ssh_failed;root;45.33.22.11;
+2026-04-06 21:08:03;ssh_failed;root;45.33.22.11;
+2026-04-06 21:08:03;ssh_failed;root;45.33.22.11;
+2026-04-06 21:08:03;ssh_failed;root;45.33.22.11;
+
+# SUMMARY
+#   SUMMARY REPORT
+#   SSH Failed Logins     : 15
+#   SSH Successful        : 2
+#   Invalid User Probes   : 3
+#   SU Success            : 1
+#   SU/Sudo Failed        : 4
+#   Sudo Commands Run     : 2
+#   Unique Attacking IPs  : 3
+#   Brute Force Alerts    : 1
+#   PRIVILEGE ESCALATIONS DETECTED:
+#     alice → root
+#     bob → root
+#   TOP 10 ATTACKING IPs:
+#   # 1 45.33.22.11     8 attempts  ████████ *** BRUTE FORCE ***
+#   # 2 10.0.0.50       4 attempts  ████
+#   # 3 203.0.113.10     3 attempts  ███
