@@ -45,8 +45,8 @@ Make sure you have '/var/log/auth.log', clone and run:
 
 ```bash
 sudo apt install -y rsyslog 
-git clone https://github.com/yourusername/ssh-auth-analyzer.git
-cd ssh-auth-analyzer
+git clone https://github.com/andry968/log_analyzer_simple.git
+cd log_analyzer_simple
 chmod +x log_feeder.sh
 ```
 
@@ -63,6 +63,7 @@ No extra Python packages needed.
 ---
 
 ## Usage
+
 1. Show help
 ```bash
 ./log_feeder.sh -h
