@@ -1,0 +1,136 @@
+2026-04-01T08:15:22.123456+07:00 gateway sshd-session[1201]: Accepted password for admin from 192.168.1.10 port 45123 ssh2
+2026-04-01T08:15:22.345678+07:00 gateway sshd-session[1201]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+2026-04-01T08:15:23.456789+07:00 gateway systemd-logind[701]: New session 12 of user admin.
+2026-04-01T08:20:10.111222+07:00 gateway sshd-session[1205]: Failed password for root from 203.0.113.55 port 33221 ssh2
+2026-04-01T08:20:13.333444+07:00 gateway unix_chkpwd[1206]: password check failed for user (root)
+2026-04-01T08:20:15.555666+07:00 gateway sshd-session[1205]: Failed password for root from 203.0.113.55 port 33221 ssh2
+2026-04-01T08:20:18.777888+07:00 gateway unix_chkpwd[1207]: password check failed for user (root)
+2026-04-01T08:20:20.999000+07:00 gateway sshd-session[1205]: Failed password for root from 203.0.113.55 port 33221 ssh2
+2026-04-01T08:20:23.111222+07:00 gateway unix_chkpwd[1208]: password check failed for user (root)
+2026-04-01T08:20:25.333444+07:00 gateway sshd-session[1205]: Failed password for root from 203.0.113.55 port 33221 ssh2
+2026-04-01T08:20:28.555666+07:00 gateway unix_chkpwd[1209]: password check failed for user (root)
+2026-04-01T08:20:30.777888+07:00 gateway sshd-session[1205]: Failed password for root from 203.0.113.55 port 33221 ssh2
+2026-04-01T08:20:33.999000+07:00 gateway sshd-session[1205]: Connection closed by authenticating user root 203.0.113.55 port 33221 [preauth]
+2026-04-01T08:25:00.123456+07:00 gateway CRON[1210]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+2026-04-01T08:25:01.234567+07:00 gateway CRON[1210]: pam_unix(cron:session): session closed for user root
+2026-04-01T08:30:00.987654+07:00 gateway sshd-session[1215]: Invalid user test from 198.51.100.77 port 55987
+2026-04-01T08:30:02.345678+07:00 gateway sshd-session[1215]: Failed password for invalid user test from 198.51.100.77 port 55987 ssh2
+2026-04-01T08:30:05.111222+07:00 gateway sshd-session[1215]: Invalid user guest from 198.51.100.77 port 55987
+2026-04-01T08:30:07.333444+07:00 gateway sshd-session[1215]: Failed password for invalid user guest from 198.51.100.77 port 55987 ssh2
+2026-04-01T08:30:10.555666+07:00 gateway sshd-session[1215]: Invalid user oracle from 198.51.100.77 port 55987
+2026-04-01T08:30:12.777888+07:00 gateway sshd-session[1215]: Failed password for invalid user oracle from 198.51.100.77 port 55987 ssh2
+2026-04-01T08:30:15.999000+07:00 gateway sshd-session[1215]: Connection closed by invalid user oracle 198.51.100.77 port 55987 [preauth]
+
+2026-04-01T09:00:22.112233+07:00 gateway sshd-session[1220]: Accepted publickey for john from 10.0.0.25 port 60123 ssh2
+2026-04-01T09:00:22.334455+07:00 gateway sshd-session[1220]: pam_unix(sshd:session): session opened for user john(uid=1001) by john(uid=0)
+2026-04-01T09:00:23.556677+07:00 gateway systemd-logind[701]: New session 13 of user john.
+
+2026-04-01T09:05:00.111111+07:00 gateway unix_chkpwd[1225]: password check failed for user (root)
+2026-04-01T09:05:00.222222+07:00 gateway su: pam_unix(su:auth): authentication failure; logname=john uid=1001 euid=0 tty=/dev/pts/0 ruser=john rhost=  user=root
+2026-04-01T09:05:02.333333+07:00 gateway su[1224]: FAILED su for root by john
+2026-04-01T09:05:05.444444+07:00 gateway unix_chkpwd[1227]: password check failed for user (root)
+2026-04-01T09:05:05.555555+07:00 gateway su: pam_unix(su:auth): authentication failure; logname=john uid=1001 euid=0 tty=/dev/pts/0 ruser=john rhost=  user=root
+2026-04-01T09:05:07.666666+07:00 gateway su[1226]: FAILED su for root by john
+2026-04-01T09:05:10.777777+07:00 gateway su[1228]: (to root) john on pts/0
+2026-04-01T09:05:10.888888+07:00 gateway su[1228]: pam_unix(su:session): session opened for user root(uid=0) by john(uid=1001)
+
+2026-04-01T09:10:30.123456+07:00 gateway sudo: john : TTY=pts/0 ; PWD=/home/john ; USER=root ; COMMAND=/usr/bin/systemctl restart postfix
+2026-04-01T09:10:30.234567+07:00 gateway sudo: pam_unix(sudo:session): session opened for user root(uid=0) by john(uid=1001)
+2026-04-01T09:10:32.345678+07:00 gateway sudo: pam_unix(sudo:session): session closed for user root
+
+2026-04-01T09:15:45.987654+07:00 gateway sudo: pam_unix(sudo:auth): authentication failure; logname=alice uid=1002 euid=0 tty=/dev/pts/1 ruser=alice rhost=  user=root
+2026-04-01T09:15:45.123456+07:00 gateway sudo: authentication failure; user=alice
+2026-04-01T09:15:47.234567+07:00 gateway sudo: alice : command not allowed ; TTY=pts/1 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/passwd root
+
+2026-04-01T10:00:00.000000+07:00 gateway kernel: [12345.678901] iptables: REJECT IN=eth0 OUT= MAC=... SRC=45.33.22.11 DST=192.168.1.100 ...
+2026-04-01T10:00:02.111222+07:00 gateway sshd-session[1230]: Failed password for root from 45.33.22.11 port 44321 ssh2
+2026-04-01T10:00:04.333444+07:00 gateway unix_chkpwd[1231]: password check failed for user (root)
+2026-04-01T10:00:06.555666+07:00 gateway sshd-session[1230]: Failed password for root from 45.33.22.11 port 44321 ssh2
+2026-04-01T10:00:09.777888+07:00 gateway unix_chkpwd[1232]: password check failed for user (root)
+2026-04-01T10:00:11.999000+07:00 gateway sshd-session[1230]: Failed password for root from 45.33.22.11 port 44321 ssh2
+2026-04-01T10:00:14.111222+07:00 gateway unix_chkpwd[1233]: password check failed for user (root)
+2026-04-01T10:00:16.333444+07:00 gateway sshd-session[1230]: Failed password for root from 45.33.22.11 port 44321 ssh2
+2026-04-01T10:00:18.555666+07:00 gateway unix_chkpwd[1234]: password check failed for user (root)
+2026-04-01T10:00:20.777888+07:00 gateway sshd-session[1230]: Failed password for root from 45.33.22.11 port 44321 ssh2
+2026-04-01T10:00:23.999000+07:00 gateway unix_chkpwd[1235]: password check failed for user (root)
+2026-04-01T10:00:26.111222+07:00 gateway sshd-session[1230]: Failed password for root from 45.33.22.11 port 44321 ssh2
+2026-04-01T10:00:29.333444+07:00 gateway sshd-session[1230]: Connection closed by authenticating user root 45.33.22.11 port 44321 [preauth]
+
+2026-04-01T11:00:00.123456+07:00 server sshd-session[2001]: Accepted password for deploy from 10.10.10.5 port 50022 ssh2
+2026-04-01T11:00:00.234567+07:00 server sshd-session[2001]: pam_unix(sshd:session): session opened for user deploy(uid=1005) by deploy(uid=0)
+2026-04-01T11:00:01.345678+07:00 server systemd-logind[850]: New session 20 of user deploy.
+
+2026-04-01T11:05:00.111111+07:00 server sudo: deploy : TTY=pts/0 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/docker ps -a
+2026-04-01T11:05:00.222222+07:00 server sudo: pam_unix(sudo:session): session opened for user root(uid=0) by deploy(uid=1005)
+2026-04-01T11:05:02.333333+07:00 server sudo: pam_unix(sudo:session): session closed for user root
+
+2026-04-01T11:10:00.444444+07:00 server sshd-session[2005]: Failed password for postgres from 192.0.2.99 port 33221 ssh2
+2026-04-01T11:10:02.555555+07:00 server unix_chkpwd[2006]: password check failed for user (postgres)
+2026-04-01T11:10:04.666666+07:00 server sshd-session[2005]: Failed password for postgres from 192.0.2.99 port 33221 ssh2
+2026-04-01T11:10:06.777777+07:00 server unix_chkpwd[2007]: password check failed for user (postgres)
+2026-04-01T11:10:08.888888+07:00 server sshd-session[2005]: Failed password for postgres from 192.0.2.99 port 33221 ssh2
+2026-04-01T11:10:10.999999+07:00 server unix_chkpwd[2008]: password check failed for user (postgres)
+2026-04-01T11:10:12.111111+07:00 server sshd-session[2005]: Failed password for postgres from 192.0.2.99 port 33221 ssh2
+2026-04-01T11:10:14.222222+07:00 server unix_chkpwd[2009]: password check failed for user (postgres)
+2026-04-01T11:10:16.333333+07:00 server sshd-session[2005]: Failed password for postgres from 192.0.2.99 port 33221 ssh2
+2026-04-01T11:10:19.444444+07:00 server sshd-session[2005]: Connection closed by authenticating user postgres 192.0.2.99 port 33221 [preauth]
+
+2026-04-01T12:00:00.000000+07:00 server CRON[2010]: pam_unix(cron:session): session opened for user backup(uid=1006) by (uid=0)
+2026-04-01T12:00:01.111111+07:00 server CRON[2010]: pam_unix(cron:session): session closed for user backup
+
+2026-04-01T13:00:22.123456+07:00 server su[2020]: (to backup) alice on pts/2
+2026-04-01T13:00:22.234567+07:00 server su[2020]: pam_unix(su:session): session opened for user backup(uid=1006) by alice(uid=1002)
+
+2026-04-01T14:00:00.987654+07:00 server sshd-session[2025]: Did not receive identification string from 185.130.5.253 port 55231
+2026-04-01T14:00:02.111222+07:00 server sshd-session[2026]: Invalid user test2 from 185.130.5.253 port 55232
+2026-04-01T14:00:04.333444+07:00 server sshd-session[2026]: Failed password for invalid user test2 from 185.130.5.253 port 55232 ssh2
+2026-04-01T14:00:06.555666+07:00 server sshd-session[2026]: Invalid user admin from 185.130.5.253 port 55232
+2026-04-01T14:00:08.777888+07:00 server sshd-session[2026]: Failed password for invalid user admin from 185.130.5.253 port 55232 ssh2
+2026-04-01T14:00:10.999000+07:00 server sshd-session[2026]: Connection closed by invalid user admin 185.130.5.253 port 55232 [preauth]
+
+2026-04-01T15:30:00.123456+07:00 gateway systemd[1]: Started Session 123 of user admin.
+2026-04-01T15:30:00.234567+07:00 gateway sshd-session[1300]: Accepted password for admin from 192.168.1.10 port 45124 ssh2
+2026-04-01T15:30:00.345678+07:00 gateway sshd-session[1300]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+
+2026-04-01T16:00:00.111111+07:00 gateway sshd-session[1305]: Received disconnect from 10.0.0.50 port 44123:11: disconnected by user
+2026-04-01T16:00:00.222222+07:00 gateway sshd-session[1305]: Disconnected from user admin 10.0.0.50 port 44123
+
+2026-04-01T17:00:00.333333+07:00 gateway sudo: admin : TTY=pts/1 ; PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/apt update
+2026-04-01T17:00:00.444444+07:00 gateway sudo: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+2026-04-01T17:00:05.555555+07:00 gateway sudo: pam_unix(sudo:session): session closed for user root
+
+2026-04-01T18:00:00.666666+07:00 gateway su[1310]: (to www-data) john on pts/0
+2026-04-01T18:00:00.777777+07:00 gateway su[1310]: pam_unix(su:session): session opened for user www-data(uid=33) by john(uid=1001)
+
+2026-04-02T00:00:00.123456+07:00 gateway kernel: [99999.999999] audit: type=1400 audit(...): apparmor="DENIED" operation="open" profile="/usr/sbin/sshd" name="/etc/ssh/sshd_config" pid=1400 comm="sshd"
+2026-04-02T00:05:00.234567+07:00 gateway sshd-session[1401]: Failed password for root from 87.250.224.23 port 44321 ssh2
+2026-04-02T00:05:02.345678+07:00 gateway unix_chkpwd[1402]: password check failed for user (root)
+2026-04-02T00:05:04.456789+07:00 gateway sshd-session[1401]: Failed password for root from 87.250.224.23 port 44321 ssh2
+2026-04-02T00:05:06.567890+07:00 gateway unix_chkpwd[1403]: password check failed for user (root)
+2026-04-02T00:05:08.678901+07:00 gateway sshd-session[1401]: Failed password for root from 87.250.224.23 port 44321 ssh2
+2026-04-02T00:05:10.789012+07:00 gateway unix_chkpwd[1404]: password check failed for user (root)
+2026-04-02T00:05:12.890123+07:00 gateway sshd-session[1401]: Failed password for root from 87.250.224.23 port 44321 ssh2
+2026-04-02T00:05:14.901234+07:00 gateway unix_chkpwd[1405]: password check failed for user (root)
+2026-04-02T00:05:16.012345+07:00 gateway sshd-session[1401]: Failed password for root from 87.250.224.23 port 44321 ssh2
+2026-04-02T00:05:19.123456+07:00 gateway sshd-session[1401]: Connection closed by authenticating user root 87.250.224.23 port 44321 [preauth]
+
+2026-04-02T00:10:00.111111+07:00 gateway sshd-session[1410]: Accepted password for monitoring from 10.0.0.200 port 33001 ssh2
+2026-04-02T00:10:00.222222+07:00 gateway sshd-session[1410]: pam_unix(sshd:session): session opened for user monitoring(uid=1010) by monitoring(uid=0)
+
+2026-04-02T01:00:00.333333+07:00 gateway su[1415]: (to root) monitoring on pts/0
+2026-04-02T01:00:00.444444+07:00 gateway su[1415]: pam_unix(su:session): session opened for user root(uid=0) by monitoring(uid=1010)
+
+2026-04-02T01:05:00.555555+07:00 gateway sudo: monitoring : TTY=pts/0 ; PWD=/home/monitoring ; USER=root ; COMMAND=/usr/bin/less /var/log/syslog
+2026-04-02T01:05:00.666666+07:00 gateway sudo: pam_unix(sudo:session): session opened for user root(uid=0) by monitoring(uid=1010)
+
+2026-04-02T02:00:00.777777+07:00 gateway sshd-session[1420]: Invalid user pi from 193.0.0.1 port 12345
+2026-04-02T02:00:02.888888+07:00 gateway sshd-session[1420]: Failed password for invalid user pi from 193.0.0.1 port 12345 ssh2
+2026-04-02T02:00:05.999999+07:00 gateway sshd-session[1420]: Invalid user ubuntu from 193.0.0.1 port 12346
+2026-04-02T02:00:07.111111+07:00 gateway sshd-session[1420]: Failed password for invalid user ubuntu from 193.0.0.1 port 12346 ssh2
+2026-04-02T02:00:10.222222+07:00 gateway sshd-session[1420]: Connection closed by invalid user ubuntu 193.0.0.1 port 12346 [preauth]
+
+2026-04-02T03:00:00.123456+07:00 gateway CRON[1425]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+2026-04-02T03:00:01.234567+07:00 gateway CRON[1425]: pam_unix(cron:session): session closed for user root
+
+2026-04-02T04:00:00.345678+07:00 gateway systemd[1]: Stopping User Manager for UID 1000...
+2026-04-02T04:00:00.456789+07:00 gateway systemd-logind[701]: Removed session 12.

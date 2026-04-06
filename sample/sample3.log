@@ -1,0 +1,69 @@
+2026-04-03T08:00:00.123456+07:00 server sshd-session[2001]: Accepted password for admin from 10.0.0.10 port 45123 ssh2
+2026-04-03T08:00:00.234567+07:00 server sshd-session[2001]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+2026-04-03T08:00:01.345678+07:00 server systemd-logind[701]: New session 15 of user admin.
+
+2026-04-03T08:01:00.111222+07:00 server sshd-session[2005]: Failed password for webadmin from 192.168.100.50 port 33221 ssh2
+2026-04-03T08:01:00.333444+07:00 server unix_chkpwd[2006]: password check failed for user (webadmin)
+2026-04-03T08:01:05.555666+07:00 server CRON[2007]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+2026-04-03T08:01:06.777888+07:00 server CRON[2007]: pam_unix(cron:session): session closed for user root
+
+2026-04-03T08:02:00.123456+07:00 server sshd-session[2005]: Failed password for webadmin from 192.168.100.50 port 33221 ssh2
+2026-04-03T08:02:00.345678+07:00 server unix_chkpwd[2010]: password check failed for user (webadmin)
+
+2026-04-03T08:03:00.987654+07:00 server sshd-session[2015]: Accepted password for jane from 192.168.1.100 port 60123 ssh2
+2026-04-03T08:03:00.123456+07:00 server sshd-session[2015]: pam_unix(sshd:session): session opened for user jane(uid=1002) by jane(uid=0)
+2026-04-03T08:03:01.234567+07:00 server systemd-logind[701]: New session 16 of user jane.
+
+2026-04-03T08:04:00.111222+07:00 server sshd-session[2005]: Failed password for webadmin from 192.168.100.50 port 33221 ssh2
+2026-04-03T08:04:00.333444+07:00 server unix_chkpwd[2020]: password check failed for user (webadmin)
+
+2026-04-03T08:05:00.555666+07:00 server sshd-session[2025]: Invalid user oracle from 203.0.113.20 port 55987
+2026-04-03T08:05:02.777888+07:00 server sshd-session[2025]: Failed password for invalid user oracle from 203.0.113.20 port 55987 ssh2
+2026-04-03T08:05:05.999000+07:00 server sshd-session[2025]: Connection closed by invalid user oracle 203.0.113.20 port 55987 [preauth]
+
+2026-04-03T08:06:00.123456+07:00 server sshd-session[2005]: Failed password for webadmin from 192.168.100.50 port 33221 ssh2
+2026-04-03T08:06:00.345678+07:00 server unix_chkpwd[2030]: password check failed for user (webadmin)
+
+2026-04-03T08:07:00.987654+07:00 server unix_chkpwd[2035]: password check failed for user (root)
+2026-04-03T08:07:00.111222+07:00 server su: pam_unix(su:auth): authentication failure; logname=jane uid=1002 euid=0 tty=/dev/pts/0 ruser=jane rhost=  user=root
+2026-04-03T08:07:02.333444+07:00 server su[2034]: FAILED su for root by jane
+2026-04-03T08:07:05.555666+07:00 server su[2036]: (to root) john on pts/1
+2026-04-03T08:07:05.777888+07:00 server su[2036]: pam_unix(su:session): session opened for user root(uid=0) by john(uid=1001)
+
+2026-04-03T08:08:00.111222+07:00 server sshd-session[2005]: Failed password for webadmin from 192.168.100.50 port 33221 ssh2
+2026-04-03T08:08:00.333444+07:00 server unix_chkpwd[2040]: password check failed for user (webadmin)
+
+2026-04-03T08:09:00.555666+07:00 server sudo: john : TTY=pts/1 ; PWD=/home/john ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx
+2026-04-03T08:09:00.777888+07:00 server sudo: pam_unix(sudo:session): session opened for user root(uid=0) by john(uid=1001)
+2026-04-03T08:09:02.999000+07:00 server sudo: pam_unix(sudo:session): session closed for user root
+
+2026-04-03T08:10:00.123456+07:00 server sshd-session[2005]: Failed password for webadmin from 192.168.100.50 port 33221 ssh2
+2026-04-03T08:10:00.345678+07:00 server unix_chkpwd[2050]: password check failed for user (webadmin)
+
+2026-04-03T08:11:00.987654+07:00 server sshd-session[2055]: Failed password for root from 172.16.0.5 port 44321 ssh2
+2026-04-03T08:11:02.111222+07:00 server unix_chkpwd[2056]: password check failed for user (root)
+2026-04-03T08:11:04.333444+07:00 server sshd-session[2055]: Failed password for root from 172.16.0.5 port 44321 ssh2
+2026-04-03T08:11:06.555666+07:00 server unix_chkpwd[2057]: password check failed for user (root)
+2026-04-03T08:11:08.777888+07:00 server sshd-session[2055]: Connection closed by authenticating user root 172.16.0.5 port 44321 [preauth]
+
+2026-04-03T08:12:00.111222+07:00 server sshd-session[2005]: Failed password for webadmin from 192.168.100.50 port 33221 ssh2
+2026-04-03T08:12:00.333444+07:00 server unix_chkpwd[2060]: password check failed for user (webadmin)
+
+2026-04-03T08:13:00.555666+07:00 server sudo: alice : TTY=pts/2 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/apt update
+2026-04-03T08:13:00.777888+07:00 server sudo: pam_unix(sudo:session): session opened for user root(uid=0) by alice(uid=1003)
+2026-04-03T08:13:02.999000+07:00 server sudo: pam_unix(sudo:session): session closed for user root
+
+2026-04-03T08:14:00.123456+07:00 server sshd-session[2070]: Accepted password for monitoring from 10.10.10.5 port 50022 ssh2
+2026-04-03T08:14:00.234567+07:00 server sshd-session[2070]: pam_unix(sshd:session): session opened for user monitoring(uid=1010) by monitoring(uid=0)
+2026-04-03T08:14:01.345678+07:00 server systemd-logind[701]: New session 17 of user monitoring.
+
+2026-04-03T08:15:00.987654+07:00 server sshd-session[2005]: Failed password for webadmin from 192.168.100.50 port 33221 ssh2
+2026-04-03T08:15:00.111222+07:00 server unix_chkpwd[2075]: password check failed for user (webadmin)
+2026-04-03T08:15:05.333444+07:00 server sshd-session[2005]: Connection closed by authenticating user webadmin 192.168.100.50 port 33221 [preauth]
+
+2026-04-03T08:16:00.555666+07:00 server su[2080]: (to root) monitoring on pts/0
+2026-04-03T08:16:00.777888+07:00 server su[2080]: pam_unix(su:session): session opened for user root(uid=0) by monitoring(uid=1010)
+
+2026-04-03T08:17:00.123456+07:00 server kernel: [12345.678901] audit: type=1400 audit(...): apparmor="STATUS" operation="profile_load" profile="unconfined"
+2026-04-03T08:17:01.234567+07:00 server CRON[2085]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+2026-04-03T08:17:02.345678+07:00 server CRON[2085]: pam_unix(cron:session): session closed for user root
