@@ -43,19 +43,19 @@ SUCCESS_PATTERN = re.compile(
 INVALID_USER_PATTERN = re.compile(
     r"Invalid user (\S+) from ([\d.]+)"
 )
-# su success: "su[1043]: (to root) siapaipan on pts/0"
+
 SU_SUCCESS_PATTERN = re.compile(
     r"su\[\d+\]: \(to (\S+)\) (\S+) on "
 )
-# su failed: "su[1044]: FAILED su for root by siapaipan"
+
 SU_FAILED_PATTERN = re.compile(
     r"su\[\d+\]: FAILED su for (\S+) by (\S+)"
 )
-# sudo success: "sudo: siapaipan : TTY=pts/0 ; USER=root ; COMMAND=..."
+
 SUDO_SUCCESS_PATTERN = re.compile(
     r"sudo:\s+(\S+)\s+:.*USER=(\S+)\s*;.*COMMAND=(.+)"
 )
-# sudo failed auth
+
 SUDO_FAILED_PATTERN = re.compile(
     r"sudo:.*authentication failure.*user=(\S+)"
 )
@@ -68,7 +68,7 @@ class LogEvent:
     def __init__(self, event_type: str, user: str, ip: str, raw_line: str, extra: str = ""):
         self.event_type = event_type
         self.user       = user
-        self.ip         = ip        # for su: reused as "from_user"
+        self.ip         = ip       
         self.raw_line   = raw_line.strip()
         self.extra      = extra
         self.timestamp  = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -94,7 +94,7 @@ class LogParser:
 
         m = SU_SUCCESS_PATTERN.search(line)
         if m:
-            # group(1)=target account, group(2)=who did it
+
             return LogEvent("su_success", m.group(1), m.group(2), line)
 
         m = SU_FAILED_PATTERN.search(line)
@@ -136,7 +136,6 @@ class OutputWriter:
         if self.is_csv:
             with open(path, "w", newline="") as f:
                 fieldnames = ["timestamp", "event_type", "user", "ip_or_from", "extra"]
-                # pakai semicolon biar langsung rapi di LibreOffice tanpa setting tambahan
                 w = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";")
                 w.writeheader()
                 w.writerows(self.records)
