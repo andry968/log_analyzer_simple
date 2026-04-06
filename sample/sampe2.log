@@ -1,0 +1,22 @@
+Apr  6 10:01:02 server sshd[1001]: Failed password for invalid user admin from 45.33.32.156 port 52384 ssh2
+Apr  6 10:01:05 server sshd[1002]: Failed password for invalid user root from 45.33.32.156 port 52385 ssh2
+Apr  6 10:01:08 server sshd[1003]: Failed password for invalid user test from 45.33.32.156 port 52386 ssh2
+Apr  6 10:01:11 server sshd[1004]: Failed password for invalid user ubuntu from 45.33.32.156 port 52387 ssh2
+Apr  6 10:01:14 server sshd[1005]: Failed password for invalid user pi from 45.33.32.156 port 52388 ssh2
+Apr  6 10:01:17 server sshd[1006]: Failed password for invalid user vagrant from 45.33.32.156 port 52389 ssh2
+Apr  6 10:02:00 server sshd[1010]: Invalid user oracle from 192.168.50.22
+Apr  6 10:02:03 server sshd[1011]: Failed password for invalid user oracle from 192.168.50.22 port 41200 ssh2
+Apr  6 10:02:06 server sshd[1012]: Failed password for invalid user oracle from 192.168.50.22 port 41201 ssh2
+Apr  6 10:03:00 server sshd[1020]: Accepted password for andry from 10.0.0.5 port 22 ssh2
+Apr  6 10:03:30 server sshd[1025]: Failed password for root from 198.51.100.77 port 38811 ssh2
+Apr  6 10:03:33 server sshd[1026]: Failed password for root from 198.51.100.77 port 38812 ssh2
+Apr  6 10:03:36 server sshd[1027]: Failed password for root from 198.51.100.77 port 38813 ssh2
+Apr  6 10:03:39 server sshd[1028]: Failed password for root from 198.51.100.77 port 38814 ssh2
+Apr  6 10:03:42 server sshd[1029]: Failed password for root from 198.51.100.77 port 38815 ssh2
+Apr  6 10:03:45 server sshd[1030]: Failed password for root from 198.51.100.77 port 38816 ssh2
+Apr  6 10:04:00 server sshd[1040]: Accepted publickey for deploy from 10.0.0.12 port 22 ssh2
+Apr  6 10:04:30 server sshd[1050]: Failed password for invalid user ftpuser from 203.0.113.42 port 55100 ssh2
+Apr  6 10:04:33 server sshd[1051]: Failed password for invalid user ftpuser from 203.0.113.42 port 55101 ssh2
+Apr  6 10:05:00 server sshd[1060]: Failed password for invalid user admin from 45.33.32.156 port 52390 ssh2
+Apr  6 10:05:03 server sshd[1061]: Failed password for invalid user admin from 45.33.32.156 port 52391 ssh2
+Apr  6 10:06:00 server sshd[1070]: Failed password for invalid user backup from 172.16.0.99 port 33001 ssh2
