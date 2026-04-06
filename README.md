@@ -13,6 +13,7 @@ Comes with a lightweight Bash feeder (`log_feeder.sh`) and a feature‑rich Pyth
 
 ## Preview
 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7f9e0750-6e37-4da1-b06d-78d5980966bf" />
 
 
 ---
@@ -172,7 +173,7 @@ Press Ctrl+C to stop – the summary and file will still be generated.
 
 ## License
 
-GPL V3 License – see LICENSE for details.
+GPL V3 License – see [LICENSE](LICENSE) for details.
 
 ---
 
