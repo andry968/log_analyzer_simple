@@ -1,0 +1,52 @@
+2026-04-06T20:15:22.123456+07:00 server sshd-session[1001]: Failed password for admin from 10.0.0.50 port 44123 ssh2
+2026-04-06T20:15:25.987654+07:00 server unix_chkpwd[1002]: password check failed for user (admin)
+2026-04-06T20:15:28.456789+07:00 server sshd-session[1001]: Failed password for admin from 10.0.0.50 port 44123 ssh2
+2026-04-06T20:15:32.112233+07:00 server unix_chkpwd[1003]: password check failed for user (admin)
+2026-04-06T20:15:34.445566+07:00 server sshd-session[1001]: Failed password for admin from 10.0.0.50 port 44123 ssh2
+2026-04-06T20:15:38.778899+07:00 server unix_chkpwd[1004]: password check failed for user (admin)
+2026-04-06T20:15:40.001122+07:00 server sshd-session[1001]: Failed password for admin from 10.0.0.50 port 44123 ssh2
+2026-04-06T20:15:44.334455+07:00 server sshd-session[1001]: Accepted password for admin from 10.0.0.50 port 44123 ssh2
+2026-04-06T20:15:44.556677+07:00 server sshd-session[1001]: pam_unix(sshd:session): session opened for user admin(uid=1001) by admin(uid=0)
+2026-04-06T20:15:44.778899+07:00 server systemd-logind[700]: New session 10 of user admin.
+
+2026-04-06T20:18:10.111222+07:00 server sshd-session[1010]: Invalid user test from 203.0.113.10 port 55987
+2026-04-06T20:18:12.333444+07:00 server sshd-session[1010]: Failed password for invalid user test from 203.0.113.10 port 55987 ssh2
+2026-04-06T20:18:15.555666+07:00 server sshd-session[1010]: Invalid user guest from 203.0.113.10 port 55987
+2026-04-06T20:18:17.777888+07:00 server sshd-session[1010]: Failed password for invalid user guest from 203.0.113.10 port 55987 ssh2
+2026-04-06T20:18:20.999000+07:00 server sshd-session[1010]: Invalid user ftp from 203.0.113.10 port 55987
+2026-04-06T20:18:22.111333+07:00 server sshd-session[1010]: Failed password for invalid user ftp from 203.0.113.10 port 55987 ssh2
+
+2026-04-06T20:20:45.123456+07:00 server sshd-session[1020]: Accepted password for jane from 192.168.1.100 port 60123 ssh2
+2026-04-06T20:20:45.345678+07:00 server sshd-session[1020]: pam_unix(sshd:session): session opened for user jane(uid=1002) by jane(uid=0)
+
+2026-04-06T20:25:00.111222+07:00 server unix_chkpwd[1030]: password check failed for user (root)
+2026-04-06T20:25:00.333444+07:00 server su: pam_unix(su:auth): authentication failure; logname=alice uid=1003 euid=0 tty=/dev/pts/2 ruser=alice rhost=  user=root
+2026-04-06T20:25:02.555666+07:00 server su[1029]: FAILED su for root by alice
+2026-04-06T20:25:05.777888+07:00 server unix_chkpwd[1032]: password check failed for user (root)
+2026-04-06T20:25:05.999000+07:00 server su: pam_unix(su:auth): authentication failure; logname=alice uid=1003 euid=0 tty=/dev/pts/2 ruser=alice rhost=  user=root
+2026-04-06T20:25:07.111222+07:00 server su[1031]: FAILED su for root by alice
+2026-04-06T20:25:10.333444+07:00 server su[1033]: (to root) alice on pts/2
+2026-04-06T20:25:10.555666+07:00 server su[1033]: pam_unix(su:session): session opened for user root(uid=0) by alice(uid=1003)
+
+2026-04-06T20:28:20.123456+07:00 server sudo: alice : TTY=pts/2 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx
+2026-04-06T20:28:20.345678+07:00 server sudo: pam_unix(sudo:session): session opened for user root(uid=0) by alice(uid=1003)
+
+2026-04-06T20:30:15.111222+07:00 server sudo: pam_unix(sudo:auth): authentication failure; logname=bob uid=1004 euid=0 tty=/dev/pts/3 ruser=bob rhost=  user=root
+2026-04-06T20:30:15.333444+07:00 server sudo: authentication failure; user=bob
+2026-04-06T20:30:17.555666+07:00 server sudo: bob : command not allowed ; TTY=pts/3 ; PWD=/home/bob ; USER=root ; COMMAND=/usr/bin/apt update
+
+2026-04-06T20:35:00.111111+07:00 server sshd-session[1040]: Failed password for root from 45.33.22.11 port 33221 ssh2
+2026-04-06T20:35:03.222222+07:00 server unix_chkpwd[1041]: password check failed for user (root)
+2026-04-06T20:35:05.333333+07:00 server sshd-session[1040]: Failed password for root from 45.33.22.11 port 33221 ssh2
+2026-04-06T20:35:08.444444+07:00 server unix_chkpwd[1042]: password check failed for user (root)
+2026-04-06T20:35:10.555555+07:00 server sshd-session[1040]: Failed password for root from 45.33.22.11 port 33221 ssh2
+2026-04-06T20:35:13.666666+07:00 server unix_chkpwd[1043]: password check failed for user (root)
+2026-04-06T20:35:15.777777+07:00 server sshd-session[1040]: Failed password for root from 45.33.22.11 port 33221 ssh2
+2026-04-06T20:35:18.888888+07:00 server unix_chkpwd[1044]: password check failed for user (root)
+2026-04-06T20:35:20.999999+07:00 server sshd-session[1040]: Failed password for root from 45.33.22.11 port 33221 ssh2
+2026-04-06T20:35:23.111111+07:00 server unix_chkpwd[1045]: password check failed for user (root)
+2026-04-06T20:35:25.222222+07:00 server sshd-session[1040]: Failed password for root from 45.33.22.11 port 33221 ssh2
+2026-04-06T20:35:28.333333+07:00 server unix_chkpwd[1046]: password check failed for user (root)
+2026-04-06T20:35:30.444444+07:00 server sshd-session[1040]: Failed password for root from 45.33.22.11 port 33221 ssh2
+2026-04-06T20:35:33.555555+07:00 server unix_chkpwd[1047]: password check failed for user (root)
+2026-04-06T20:35:35.666666+07:00 server sshd-session[1040]: Failed password for root from 45.33.22.11 port 33221 ssh2
