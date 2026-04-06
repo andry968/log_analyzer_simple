@@ -172,7 +172,7 @@ Press Ctrl+C to stop – the summary and file will still be generated.
 
 ## License
 
-GNP V3 License – see LICENSE for details.
+GPL V3 License – see LICENSE for details.
 
 ---
 
