@@ -1,39 +1,32 @@
 #!/bin/bash
-# =============================================================================
-# log_feeder.sh — SSH Log Feeder
-# Streams auth.log content to stdout for the Python analyzer to consume.
-# Supports --live (real-time tail) and --file (static read) modes.
-# Usage:
-#   ./log_feeder.sh --live                        # monitor /var/log/auth.log live
-#   ./log_feeder.sh --file /path/to/auth.log      # read a static file
-#   ./log_feeder.sh --live | python3 analyzer.py  # pipe into analyzer
-# =============================================================================
 
 set -euo pipefail
 
-# Default values
 MODE=""
 LOG_FILE="/var/log/auth.log"
 
-# ----------------------------
-# Parse CLI arguments
-# ----------------------------
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --live)
+        -lv)
             MODE="live"
             shift
             ;;
-        --file)
+        -f)
             MODE="file"
             LOG_FILE="$2"
             shift 2
             ;;
-        --help|-h)
-            echo "Usage: $0 [--live | --file <path>]"
+        -h|--help)
+            echo "Usage: $0 [-lv | -f <path>]"
             echo ""
-            echo "  --live            Stream /var/log/auth.log in real-time (tail -f)"
-            echo "  --file <path>     Read from a specific log file (static)"
+            echo "  -lv               Stream /var/log/auth.log in real-time (tail -F)"
+            echo "  -f  <path>        Read from a specific log file (static)"
+            echo "  -h                Show this help"
+            echo ""
+            echo "Examples:"
+            echo "  ./log_feeder.sh -lv"
+            echo "  ./log_feeder.sh -f /var/log/auth.log"
+            echo "  ./log_feeder.sh -lv | python3 analyzer.py -t 3 -o report.csv"
             exit 0
             ;;
         *)
@@ -43,31 +36,24 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# ----------------------------
-# Validate mode selection
-# ----------------------------
+# Validate mode
 if [[ -z "$MODE" ]]; then
-    echo "[ERROR] You must specify a mode: --live or --file <path>" >&2
+    echo "[ERROR] You must specify a mode: -lv or -f <path>" >&2
+    echo "        Run with -h for help." >&2
     exit 1
 fi
 
-# ----------------------------
-# Validate log file existence
-# ----------------------------
+# Validate log file
 if [[ ! -f "$LOG_FILE" ]]; then
     echo "[ERROR] Log file not found: $LOG_FILE" >&2
     exit 1
 fi
 
-# ----------------------------
-# Stream logs based on mode
-# ----------------------------
+# Stream
 if [[ "$MODE" == "live" ]]; then
-    echo "[FEEDER] Starting live monitoring of: $LOG_FILE" >&2
-    # tail -F handles log rotation automatically (better than -f)
+    echo "[FEEDER] Live monitoring: $LOG_FILE" >&2
     exec tail -F "$LOG_FILE"
-
 elif [[ "$MODE" == "file" ]]; then
-    echo "[FEEDER] Reading static log file: $LOG_FILE" >&2
+    echo "[FEEDER] Reading file: $LOG_FILE" >&2
     exec cat "$LOG_FILE"
 fi
