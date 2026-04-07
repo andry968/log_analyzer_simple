@@ -18,6 +18,12 @@ Comes with a lightweight Bash feeder (`log_feeder.sh`) and a feature‑rich Pyth
 
 ---
 
+## Latest Update
+
+- April - 07 - 2025 : Added new feature `-tz` and `-tr`, see the details [CHANGELOG.md](./CHANGELOG.md)
+
+---
+
 ## Why?
 
 Manually tailing `/var/log/auth.log` is tedious and error‑prone. This tool automates the detection.
@@ -143,17 +149,6 @@ Human‑readable report with a detailed event log followed by summary statistics
 
 ---
 
-## Example Workflow
-
-```bash
-# Live monitor with threshold 3, save CSV report
-./log_feeder.sh -lv | python3 analyzer.py -t 3 -o incident_$(date +%Y%m%d).csv
-```
-
-Press Ctrl+C to stop – the summary and file will still be generated.
-
----
-
 ## Use Cases
 
 - Blue Team / SOC – real‑time detection of ongoing SSH brute force
@@ -173,7 +168,7 @@ Press Ctrl+C to stop – the summary and file will still be generated.
 
 ## License
 
-GPL V3 License – see [LICENSE](LICENSE) for details.
+GPL-3.0 License – see [LICENSE](LICENSE) for details.
 
 ---
 
