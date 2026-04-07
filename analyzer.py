@@ -32,6 +32,34 @@ def colorize(text: str, *codes: str) -> str:
 
 
 # =============================================================================
+# Timestamp Extraction
+# =============================================================================
+def extract_timestamp(line: str) -> str:
+    """
+    Extract ISO timestamp from beginning of log line and return as 'YYYY-MM-DD HH:MM:SS'.
+    Returns current time if line is empty or has no timestamp.
+    """
+    line = line.strip()
+    if not line:
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    first_token = line.split(maxsplit=1)[0]
+    
+    if 'T' in first_token:
+        dt_part = first_token[:19]
+        return dt_part.replace('T', ' ')
+    
+    if ' ' in first_token and '-' in first_token and ':' in first_token:
+        return first_token[:19] if len(first_token) >= 19 else first_token
+    
+    try:
+        dt = datetime.fromisoformat(first_token)
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+# =============================================================================
 # Regex Patterns
 # =============================================================================
 FAILED_PATTERN = re.compile(
@@ -65,13 +93,16 @@ SUDO_FAILED_PATTERN = re.compile(
 # LogEvent
 # =============================================================================
 class LogEvent:
-    def __init__(self, event_type: str, user: str, ip: str, raw_line: str, extra: str = ""):
+    def __init__(self, event_type: str, user: str, ip: str, raw_line: str, extra: str = "", timestamp: str = None):
         self.event_type = event_type
         self.user       = user
         self.ip         = ip       
         self.raw_line   = raw_line.strip()
         self.extra      = extra
-        self.timestamp  = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if timestamp is None:
+            self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            self.timestamp = timestamp
 
 
 # =============================================================================
@@ -80,34 +111,36 @@ class LogEvent:
 class LogParser:
     @staticmethod
     def parse(line: str) -> "LogEvent | None":
+        ts = extract_timestamp(line)
+
         m = FAILED_PATTERN.search(line)
         if m:
-            return LogEvent("ssh_failed", m.group(1), m.group(2), line)
+            return LogEvent("ssh_failed", m.group(1), m.group(2), line, timestamp=ts)
 
         m = SUCCESS_PATTERN.search(line)
         if m:
-            return LogEvent("ssh_success", m.group(1), m.group(2), line)
+            return LogEvent("ssh_success", m.group(1), m.group(2), line, timestamp=ts)
 
         m = INVALID_USER_PATTERN.search(line)
         if m:
-            return LogEvent("invalid_user", m.group(1), m.group(2), line)
+            return LogEvent("invalid_user", m.group(1), m.group(2), line, timestamp=ts)
 
         m = SU_SUCCESS_PATTERN.search(line)
         if m:
 
-            return LogEvent("su_success", m.group(1), m.group(2), line)
+            return LogEvent("su_success", m.group(1), m.group(2), line, timestamp=ts)
 
         m = SU_FAILED_PATTERN.search(line)
         if m:
-            return LogEvent("su_failed", m.group(1), m.group(2), line)
+            return LogEvent("su_failed", m.group(1), m.group(2), line, timestamp=ts)
 
         m = SUDO_SUCCESS_PATTERN.search(line)
         if m:
-            return LogEvent("sudo_success", m.group(2), m.group(1), line, extra=m.group(3).strip())
+            return LogEvent("sudo_success", m.group(2), m.group(1), line, extra=m.group(3).strip(), timestamp=ts)
 
         m = SUDO_FAILED_PATTERN.search(line)
         if m:
-            return LogEvent("sudo_failed", "root", m.group(1), line)
+            return LogEvent("sudo_failed", "root", m.group(1), line, timestamp=ts)
 
         return None
 
