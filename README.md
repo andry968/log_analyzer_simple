@@ -1,4 +1,4 @@
-# SSH Auth Log Analyzer
+# Auth Log Analyzer
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?style=flat-square&logo=python)
 ![Bash](https://img.shields.io/badge/Bash-5.x-green?style=flat-square&logo=gnubash)
@@ -42,7 +42,7 @@ The feeder/analyzer separation allows you to read static log files or live strea
 - **Colour‑coded terminal output** (can be disabled)
 - **Summary statistics** (top attacking IPs, total failed/success, etc.)
 - **Export to CSV or TXT** (`-o` flag)
-- **No external dependencies** – pure Python 3 + standard bash
+- **No external dependencies** pure Python 3 + standard bash
 
 ---
 
@@ -151,10 +151,10 @@ Human‑readable report with a detailed event log followed by summary statistics
 
 ## Use Cases
 
-- Blue Team / SOC – real‑time detection of ongoing SSH brute force
-- DFIR – retrospective analysis of /var/log/auth.log after an incident
-- System hardening – identify accounts being probed or misused
-- Compliance – generate login/sudo reports for auditing
+- **Blue Team / SOC**: real‑time detection of ongoing SSH brute force
+- **DFIR**: retrospective analysis of /var/log/auth.log after an incident
+- **System hardening**: identify accounts being probed or misused
+- **Compliance**: generate login/sudo reports for auditing
 
 ---
 
@@ -162,7 +162,7 @@ Human‑readable report with a detailed event log followed by summary statistics
 
 - The feeder script sends log lines to stdout; all informational messages go to stderr (so they don’t interfere with the pipe).
 - The analyzer reads from stdin, so you can replace the feeder with any command that outputs auth.log‑style lines.
-- For btmp (failed login attempts) or other log formats, adjust the file path accordingly – the regex patterns remain the same.
+- For btmp (failed login attempts) or other log formats, adjust the file path accordingly, the regex patterns remain the same.
 
 ---
 
