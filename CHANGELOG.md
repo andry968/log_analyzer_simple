@@ -14,3 +14,15 @@ Added features to `log_feeder.sh` so it's not just a rebranding of tail. We adde
 -  Fix the wrong time output
 
 ---
+
+## [1.3] - 2026-04-27
+### Overview
+Previously, only logs affected by the regex pattern were visible, but now all logs are visible so nothing is missed. Logs affected by the regex pattern will be highlighted in color. Also the JSON export feature has also been added.
+
+### Added
+- Export to JSON
+- Make all log visble, and highlight regex
+
+### Fixed
+- 
+---
