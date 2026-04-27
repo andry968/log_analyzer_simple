@@ -13,14 +13,16 @@ Comes with a lightweight Bash feeder (`log_feeder.sh`) and a feature‑rich Pyth
 
 ## Preview
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7f9e0750-6e37-4da1-b06d-78d5980966bf" />
-
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9bdb9665-2c71-4d68-9aae-64e32dcb4dd8" />
 
 ---
 
 ## Latest Update
 
-- April - 07 - 2025 : Added new feature `-tz` and `-tr`, see the details [CHANGELOG.md](./CHANGELOG.md)
+- April - 07 - 2026 : Added new feature `-tz` and `-tr`.
+- April - 27 - 2026 : Make all logs visible so nothing gets missed, tidy up, and add export json.
+
+See the details [CHANGELOG.md](./CHANGELOG.md)
 
 ---
 
@@ -41,7 +43,7 @@ The feeder/analyzer separation allows you to read static log files or live strea
 - **Privilege escalation alerts** (when a user becomes `root`)
 - **Colour‑coded terminal output** (can be disabled)
 - **Summary statistics** (top attacking IPs, total failed/success, etc.)
-- **Export to CSV or TXT** (`-o` flag)
+- **Export to CSV, TXT and JSON** (`-o` flag)
 - **No external dependencies** pure Python 3 + standard bash
 
 ---
